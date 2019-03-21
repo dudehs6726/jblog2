@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="category">
+	
+	<insert id="insert" parameterType="categoryvo">
+		<![CDATA[
+		insert 
+		  into category 
+		values ( null, #{name }, #{description }, now(), #{userNo })
+		]]>
+	</insert>
+	
+	<insert id="insertMain" parameterType="categoryvo">
+		<selectKey keyProperty="no" resultType="long" order="AFTER">
+			<![CDATA[
+				select last_insert_id();
+			]]>
+		</selectKey>
+		<![CDATA[
+		insert 
+		  into category 
+		values ( null, #{name }, #{description }, now(), #{userNo })
+		]]>
+	</insert>
+	
+	<select id="getByUserNo" parameterType="long" resultType="categoryvo">
+		<![CDATA[
+				select @rownum:=@rownum+1 as number,
+					   a.no, 
+					   a.NAME as name,
+					   a.DESCRIPTION as description,
+					   DATE_FORMAT(a.REG_DATE, '%Y-%m-%d %h:%m:%s ') as regDate,
+					   ifnull(b.postCount, 0) as postCount
+				  from category a
+				  	   left outer join 
+				  	   (select a.CATEGORY_NO, count(*) as postCount
+						  from post a
+				 		 group by a.CATEGORY_NO) b
+				       on a.no = b.CATEGORY_NO,
+				       (select @rownum:=count(*)-count(*)
+    					  from category c
+   						 where c.USER_NO = #{value }) c
+				 where a.USER_NO = #{value }
+				 order by a.no desc
+		]]>
+	</select>
+	
+	<select id="getByLong" parameterType="long" resultType="categoryvo">
+		<![CDATA[
+		       select a.NO as no, 
+					  a.NAME as name,
+					  a.DESCRIPTION as description,
+					  DATE_FORMAT(a.REG_DATE, '%Y-%m-%d %h:%m:%s ') as regDate
+			     from category a 
+			    where a.NO = #{value}
+		]]>
+	</select>
+	
+	<delete id="delete" parameterType="categoryvo">
+		<![CDATA[
+				delete from category
+				 where NO = #{no} 
+		]]>
+	</delete>
+
+</mapper>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="comment">
+	<insert id="insert" parameterType="commentvo">
+		<![CDATA[
+		insert 
+		  into comment 
+		values ( null, #{content }, now(), #{postNo })
+		]]>
+	</insert>
+	
+	<select id="getList" parameterType="Long" resultType="commentvo">
+		<![CDATA[
+				select a.NO as no, 
+					   a.CONTENT as content,
+					   DATE_FORMAT(a.REG_DATE, '%Y/%m/%d') as regDate,
+					   a.POST_NO as postNo
+				  from comment a 
+				 where a.POST_NO = #{value }
+				 order by a.NO desc
+		]]>
+	</select>
+	
+	<delete id="delete" parameterType="Long" >
+		<![CDATA[
+				delete from comment
+				 where NO = #{no} 
+		]]>
+	</delete>
+</mapper>
